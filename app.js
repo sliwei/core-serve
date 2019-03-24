@@ -12,7 +12,6 @@ const colors = require('colors');
 const {resolve} = require('path');
 const swagger = require('swagger-injector');
 const fs = require('fs');
-const mysql = require('mysql');
 
 const {CustomError, HttpError} = require('./routes/tool/error');
 const conf = require('./config');
@@ -54,31 +53,8 @@ app.use(require('koa-static')(resolve(__dirname, './public')));
 // 模板引擎
 app.use(views(resolve(__dirname, './views'), {map: {html: 'nunjucks'}}));
 
-// sql特殊字符处理
-const toEscapeString = val => {
-  return mysql.escape(val);
-};
-const toEscapeObject = dat => {
-  for (let key in dat) {
-    typeof dat[key] === 'string' && (dat[key] = toEscapeString(dat[key]));
-    typeof dat[key] === 'object' && toEscapeObject(dat[key]);
-  }
-  return dat;
-};
-
 // 加入cookie.get、set及自定义返回格式
 app.use(async (ctx, next) => {
-  ctx.cookie = {
-    set: (k, v, opt) => {
-      opt = Object.assign({}, conf.cookieOptions, opt);
-      return ctx.cookies.set(k, v, opt);
-    },
-    get: (k, opt) => {
-      opt = Object.assign({}, conf.cookieOptions, opt);
-      return ctx.cookies.get(k, opt);
-    }
-  };
-
   let msg = {
     0: '失败',
     1: '验证码错误',
@@ -94,12 +70,6 @@ app.use(async (ctx, next) => {
     !dat.message && (dat.message = msg[dat.code]);
     return dat;
   };
-
-  // if (JSON.stringify(ctx.request.body) !== "{}") {
-  //   ctx.request.body = toEscape(ctx.request.body);
-  // }
-  ctx.toEscapeObject = toEscapeObject;
-  ctx.toEscapeString = toEscapeString;
 
   // 自定义返回格式
   ctx.DATA = {

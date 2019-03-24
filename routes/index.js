@@ -1,13 +1,11 @@
 const router = require('koa-router')();
 
+const test = require('./api/test');
 const oss = require('./api/oss');
-const verification = require('./api/verification');
-const token = require('./api/token');
 
 const routes = [
+  test,
   oss,
-  verification,
-  token,
 ];
 
 for (let route of routes) {
