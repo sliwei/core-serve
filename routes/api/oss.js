@@ -9,9 +9,12 @@ router.prefix('/core/oss');
  * lw 上传
  */
 router.post('/upload', async (ctx, next) => {
-  const file = ctx.request.files.file;
+  console.log(ctx.request);
+  const file = ctx.request.files.files;
+  console.log(JSON.stringify(file));
   let stream = fs.createReadStream(file.path);
   ctx.DATA.data = await oss().putStream(file.name, stream);
+  console.log(ctx.DATA);
   ctx.body = ctx.DATA;
 });
 
