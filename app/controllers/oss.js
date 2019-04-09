@@ -12,11 +12,9 @@ const upload = async (ctx, next) => {
   let type = getFileType(file.name);
   let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
   let res = await oss().putStream(name, stream);
-  ctx.DATA.data = {
-    ...res,
-    ossUrl: res.url,
-    url: `http://oss.bstu.cn/${res.name}`,
-  };
+  res.ossUrl = res.url;
+  res.url = `http://oss.bstu.cn/${res.name}`;
+  ctx.DATA.data = res;
   ctx.body = ctx.DATA;
 };
 
