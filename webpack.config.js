@@ -7,12 +7,12 @@ module.exports = {
 		app: [
 			// 如果polyfill放在这里，打包的时候将不会被external,必须在js里require才能有效external
 			'babel-polyfill',
-			'./app.js',
+			'./bin/www.js',
 		],
 	},
 	mode: 'production',
 	output: {
-		path: path.resolve(__dirname),
+		path: path.resolve(__dirname, 'app'),
 		filename: 'server.js',
 	},
 	resolve: {

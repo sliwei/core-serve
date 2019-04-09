@@ -42,8 +42,19 @@ const randomString = function (len) {
   return pwd;
 };
 
+/**
+ * 获取文件格式
+ * @param name
+ * @returns {*|string|string}
+ */
+const getFileType = name => {
+  let fileList = name.split('.');
+  return fileList[fileList.length-1] || 'png';
+};
+
 module.exports = {
   rand,
   getDateStr,
-  randomString
+  randomString,
+  getFileType,
 };

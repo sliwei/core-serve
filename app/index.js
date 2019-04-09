@@ -1,5 +1,4 @@
 require('babel-polyfill');
-const http = require('http');
 const Koa = require('koa');
 const app = new Koa();
 const views = require('koa-views');
@@ -11,9 +10,7 @@ const cors = require('koa2-cors');
 const colors = require('colors');
 const {resolve} = require('path');
 const swagger = require('swagger-injector');
-const fs = require('fs');
 
-const {CustomError, HttpError} = require('./routes/tool/error');
 const conf = require('./config');
 const index = require('./routes');
 
@@ -55,6 +52,17 @@ app.use(views(resolve(__dirname, './views'), {map: {html: 'nunjucks'}}));
 
 // 加入cookie.get、set及自定义返回格式
 app.use(async (ctx, next) => {
+  ctx.cookie = {
+    set: (k, v, opt) => {
+      opt = Object.assign({}, conf.cookieOptions, opt);
+      return ctx.cookies.set(k, v, opt);
+    },
+    get: (k, opt) => {
+      opt = Object.assign({}, conf.cookieOptions, opt);
+      return ctx.cookies.get(k, opt);
+    }
+  };
+
   let msg = {
     0: '失败',
     1: '验证码错误',
@@ -77,6 +85,31 @@ app.use(async (ctx, next) => {
     message: '',
     code: 200,
   };
+
+  // 状态统一判断
+  ctx.state = res => {
+
+    // 1. (res && ((res && !res.length) || (res.length && res[0]) || res.id))
+    // 2. ((res && res.length) ? !!res[0] : !!res)
+
+    // [0]            false
+    // [1]            true
+    // {}             true
+    // {id: 1}        true
+    // null           false
+    // ''             false
+    // 'a'            true
+    // ""             false
+    // "a"            true
+    // undefined      false
+    // 1              true
+    // 0              false
+    // NaN            false
+
+    // 反转
+    // return !(res && ((res && !res.length) || (res.length && res[0]) || res.id));
+    return !((res && res.length) ? res[0] : res);
+  };
   await next();
 });
 
@@ -89,16 +122,12 @@ app.use(swagger.koa({
 app.use((ctx, next) => {
   return next().catch((err) => {
     console.log(err);
-    let code = 0;
-    let msg = 'unknown error';
-    if (err instanceof CustomError || err instanceof HttpError) {
-      const res = err.getCodeMsg();
-      code = err instanceof HttpError ? res.code : 200;
-      msg = res.msg
-    }
+    let msg = err ? (err.msg || err.toString()) : 'unknown error';
+    let code = err ? (err.code >= 0 ? err.code : 500) : 500;
     ctx.DATA.code = code;
     ctx.DATA.message = msg;
     ctx.body = ctx.DATA;
+    ctx.status = [200, 400, 401, 403, 404, 500, 503].indexOf(code) >= 0 ? code : 200;
   })
 });
 
@@ -107,55 +136,7 @@ app.use(index.routes(), index.allowedMethods());
 
 // koa error-handling 服务端、http错误
 app.on('error', (err, ctx) => {
-  if (!err.status) err.status = 500;
-  console.log(`${err.stack}`.red);
-
-  /*----错误日志备份----*/
-  let logPath = resolve(__dirname, './log', 'error.log');
-  let json = {};
-  json.time = new Date().toLocaleString();
-  json.url = ctx.url;
-  json.type = ctx.method;
-  json.request = ctx.request;
-  if (ctx.method === 'GET') {
-    json.parm = ctx.query;
-  } else {
-    json.parm = ctx.request.body;
-  }
-  json.status = err.status;
-  json.message = err.message;
-  json = JSON.stringify(json);
-  let log = '';
-  log += json + ',';
-  log += '\r\n';
-  // log += err.stack;
-  // log += '\r\n';
-  fs.writeFile(logPath, log, {'flag': 'a'});
-  /*----错误日志备份----*/
+  console.error('server error', err, ctx)
 });
 
-// start
-const port = conf.port || '3000';
-const server = http.createServer(app.callback());
-
-server.listen(port);
-server.on('error', (error) => {
-  if (error.syscall !== 'listen') {
-    throw error
-  }
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(port + ' requires elevated privileges');
-      process.exit(1);
-    case 'EADDRINUSE':
-      console.error(port + ' is already in use');
-      process.exit(1);
-    default:
-      throw error
-  }
-});
-
-server.on('listening', () => {
-  console.log('Listening on port: %d', port)
-});
+module.exports = app;

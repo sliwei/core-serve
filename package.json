@@ -5,9 +5,10 @@
   "author": "awei <274635143@qq.com>",
   "private": true,
   "scripts": {
-    "start": "./node_modules/.bin/nodemon app",
+    "start": "./node_modules/.bin/nodemon bin/www",
     "build": "webpack",
-    "pm2": "pm2 start app.js --name=yun.bstu.cn.server",
+    "pm2": "pm2 start app/server.js --name=core-serve",
+    "restart": "pm2 restart core-serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

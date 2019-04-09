@@ -1,24 +1,29 @@
-const router = require('koa-router')();
 const fs = require('fs');
-const oss = require('../tool/oss');
-const {CustomError, HttpError} = require('../tool/error');
-
-router.prefix('/core/oss');
+const oss = require('../utils/tool/oss');
+const {getDateStr, randomString, getFileType} = require('../utils/tool');
+const {CustomError} = require('../utils/tool/error');
 
 /**
  * lw 上传
  */
-router.post('/upload', async (ctx, next) => {
+const upload = async (ctx, next) => {
   const file = ctx.request.files.file[0];
   let stream = fs.createReadStream(file.path);
-  ctx.DATA.data = await oss().putStream(file.name, stream);
+  let type = getFileType(file.name);
+  let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
+  let res = await oss().putStream(name, stream);
+  ctx.DATA.data = {
+    ...res,
+    ossUrl: res.url,
+    url: `http://oss.bstu.cn/${res.name}`,
+  };
   ctx.body = ctx.DATA;
-});
+};
 
 /**
  * lw 获取oss列表
  */
-router.get('/list', async (ctx, next) => {
+const list = async (ctx, next) => {
   const name = ctx.query.name;
   ctx.DATA.data = await oss().list({
     prefix: name,
@@ -29,21 +34,21 @@ router.get('/list', async (ctx, next) => {
   }
   delete ctx.DATA.data.res;
   ctx.body = ctx.DATA;
-});
+};
 
 /**
  * lw 获取文件下载链接
  */
-router.get('/url', async (ctx) => {
+const url = async (ctx) => {
   const name = ctx.query.name;
   ctx.DATA.data = oss().signatureUrl(name, {expires: 3600});
   ctx.body = ctx.DATA;
-});
+};
 
 /**
  * lw 删除文件、文件夹
  */
-router.post('/del', async (ctx) => {
+const del = async (ctx) => {
   let dat = ctx.request.body;
   let delList = dat[0];
   let directory = dat[1];
@@ -66,6 +71,11 @@ router.post('/del', async (ctx) => {
   }
   ctx.DATA.message = '删除成功';
   ctx.body = ctx.DATA;
-});
+};
 
-module.exports = router;
+module.exports = {
+  upload,
+  list,
+  url,
+  del,
+};
