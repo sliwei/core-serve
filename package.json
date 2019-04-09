@@ -1,0 +1,45 @@
+{
+  "name": "core-serve",
+  "version": "0.1.0",
+  "description": "基础服务中心",
+  "author": "awei <274635143@qq.com>",
+  "private": true,
+  "scripts": {
+    "start": "./node_modules/.bin/nodemon bin/www",
+    "build": "webpack",
+    "pm2": "pm2 start app/server.js --name=core-serve",
+    "restart": "pm2 restart core-serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "ali-oss": "^6.0.1",
+    "debug": "^2.6.3",
+    "koa": "^2.2.0",
+    "koa-body": "^4.0.4",
+    "koa-favicon": "^2.0.0",
+    "koa-json": "^2.0.2",
+    "koa-logger": "^2.0.1",
+    "koa-router": "^7.1.1",
+    "koa-static": "^3.0.0",
+    "koa-views": "^5.2.1",
+    "koa2-cors": "^2.0.6",
+    "nunjucks": "^3.1.3",
+    "swagger-injector": "^4.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-loader": "7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-runtime": "^6.26.0",
+    "colors": "^1.3.2",
+    "clean-webpack-plugin": "0.1.19",
+    "externals-dependencies": "^1.0.4",
+    "nodemon": "1.17.4",
+    "webpack-cli": "^2.1.3",
+    "webpack": "4.8.3"
+  }
+}
