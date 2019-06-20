@@ -13,7 +13,7 @@ const upload = async (ctx, next) => {
   let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
   let res = await oss().putStream(name, stream);
   res.ossUrl = res.url;
-  res.url = `http://oss.bstu.cn/${res.name}`;
+  res.url = `https://bstu.oss-cn-shenzhen.aliyuncs.com/${res.name}`;
   ctx.DATA.data = res;
   ctx.body = ctx.DATA;
 };
@@ -23,6 +23,7 @@ const upload = async (ctx, next) => {
  */
 const list = async (ctx, next) => {
   const name = ctx.query.name;
+  console.log(name);
   ctx.DATA.data = await oss().list({
     prefix: name,
     delimiter: '/'
