@@ -20,7 +20,7 @@ const getDateStr = function () {
   let date = new Date();
   let y = date.getFullYear();
   let m = date.getMonth() + 1;
-  let d = date.getDay();
+  let d = date.getDate();
   m < 10 ? m = '0' + m : null;
   d < 10 ? d = '0' + d : null;
   return y + m + d;
