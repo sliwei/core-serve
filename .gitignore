@@ -62,3 +62,5 @@ typings/
 .idea
 app/config/oss.js
 package-lock.json
+app/server.js
+yarn.lock
