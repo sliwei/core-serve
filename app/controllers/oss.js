@@ -13,7 +13,22 @@ const upload = async (ctx, next) => {
   let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
   let res = await oss().putStream(name, stream);
   res.ossUrl = res.url;
-  res.url = `https://bstu.oss-cn-shenzhen.aliyuncs.com/${res.name}`;
+  res.url = `https://i.bstu.cn/${res.name}`;
+  ctx.DATA.data = res;
+  ctx.body = ctx.DATA;
+};
+
+/**
+ * lw 上传
+ */
+const build_upload = async (ctx, next) => {
+  const {key} = ctx.request.body;
+  const file = ctx.request.files.file;
+  console.log(key);
+  let stream = fs.createReadStream(file.path);
+  let res = await oss().putStream(key, stream);
+  res.ossUrl = res.url;
+  res.url = `https://i.bstu.cn/${res.name}`;
   ctx.DATA.data = res;
   ctx.body = ctx.DATA;
 };
@@ -74,6 +89,7 @@ const del = async (ctx) => {
 
 module.exports = {
   upload,
+  build_upload,
   list,
   url,
   del,
