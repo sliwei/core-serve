@@ -85,7 +85,7 @@ local SOURCE="/data/docker/awei/" + NAME+"/source/";
             "cd "+SOURCE,
             "docker build -t "+NAME+" .",
             "cd ..",
-            "docker-compose up -d"
+            "docker compose up -d"
           ]
         }
       },
