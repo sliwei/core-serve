@@ -60,7 +60,5 @@ typings/
 # next.js build output
 .next
 .idea
-app/config/oss.js
 package-lock.json
-app/server.js
-yarn.lock
+dist

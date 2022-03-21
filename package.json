@@ -5,16 +5,29 @@
   "author": "awei <274635143@qq.com>",
   "private": true,
   "scripts": {
-    "start": "./node_modules/.bin/nodemon bin/www",
-    "build": "webpack",
-    "pm2": "pm2 start app/server.js --name=core-serve",
-    "restart": "pm2 restart core-serve",
+    "dev": "cross-env ENV=dev MODE=development ./node_modules/.bin/nodemon --exec babel-node bin/www",
+    "build:dev": "webpack --env.ENV=dev --env.production",
+    "build:test": "webpack --env.ENV=test --env.production",
+    "build:prod": "webpack --env.ENV=prod --env.production",
+    "build:live": "webpack --env.ENV=live --env.production",
+    "node": "node dist/server.js",
+    "lint": "eslint --quiet=true --fix --ext .js app",
+    "lint:fix": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "app/**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
     "ali-oss": "^6.0.1",
-    "debug": "^2.6.3",
     "koa": "^2.2.0",
     "koa-body": "^4.0.4",
     "koa-favicon": "^2.0.0",
@@ -24,22 +37,30 @@
     "koa-static": "^3.0.0",
     "koa-views": "^5.2.1",
     "koa2-cors": "^2.0.6",
+    "koa2-swagger-ui": "^5.5.0",
     "nunjucks": "^3.1.3",
-    "swagger-injector": "^4.0.0"
+    "swagger-jsdoc": "^6.1.0"
   },
   "devDependencies": {
-    "babel-core": "6.26.3",
-    "babel-loader": "7.1.4",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "1.7.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-runtime": "^6.26.0",
+    "@babel/cli": "^7.16.7",
+    "@babel/core": "^7.16.7",
+    "@babel/node": "^7.16.7",
+    "@babel/plugin-transform-runtime": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
+    "@babel/runtime": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "5.1.1",
     "colors": "^1.3.2",
-    "clean-webpack-plugin": "0.1.19",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.6.0",
     "externals-dependencies": "^1.0.4",
-    "nodemon": "1.17.4",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.7",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "webpack": "4.8.3",
     "webpack-cli": "^2.1.3",
-    "webpack": "4.8.3"
+    "webpack-node-externals": "^3.0.0"
   }
 }
