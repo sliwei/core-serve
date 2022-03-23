@@ -12,7 +12,7 @@ ENV PORT=""
 
 WORKDIR /www
 
-EXPOSE 3004
+EXPOSE 3000
 
 RUN ["chmod", "+x", "./start.sh"]
 
