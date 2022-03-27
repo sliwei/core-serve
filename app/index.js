@@ -115,9 +115,9 @@ app.use(async (ctx, next) => {
 // swagger
 app.use(
   koaSwagger({
-    routePrefix: '/chat/swagger', // host at /swagger instead of default /docs
+    routePrefix: '/core/swagger', // host at /swagger instead of default /docs
     swaggerOptions: {
-      url: '/chat/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
+      url: '/core/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
     }
   })
 )

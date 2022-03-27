@@ -4,17 +4,58 @@ const {getDateStr, randomString, getFileType} = require('../utils/tool');
 const {CustomError} = require('../utils/tool/error');
 
 /**
- * lw 上传
+ * @swagger
+ * /core/oss/upload:
+ *   post:
+ *     tags:
+ *       - server
+ *     summary: 图片
+ *     description: 说明
+ *     requestBody:
+ *       description: Pet object that needs to be added to the store
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                   description: 文件
+ *     responses:
+ *       '200':
+ *         description: 成功说明
+ *       '400':
+ *         description: 失败说明
  */
 const upload = async (ctx, next) => {
-  const file = ctx.request.files.file[0];
-  let stream = fs.createReadStream(file.path);
-  let type = getFileType(file.name);
-  let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
-  let res = await oss().putStream(name, stream);
-  res.ossUrl = res.url;
-  res.url = `https://i.bstu.cn/${res.name}`;
-  ctx.DATA.data = res;
+  const file = ctx.request.files.file
+  let files = file, uploadAll = []
+  if (Object.prototype.toString.call(file) === '[object Object]') {
+    files = [file]
+  }
+  files.forEach(v => {
+    let stream = fs.createReadStream(v.path);
+    let type = getFileType(v.name);
+    let name = `images/${getDateStr()}/${randomString(16)}.${type}`;
+    uploadAll.push(oss.putStream(name, stream))
+  })
+  let res = await Promise.all(uploadAll);
+  if (res.length < 2) {
+    ctx.DATA.data = {
+      name: res[0].name,
+      ossUrl: res[0].url,
+      url: `https://i.bstu.cn/${res[0].name}`
+    };
+  } else {
+    ctx.DATA.data = res.map(v => ({
+      name: v.name,
+      ossUrl: v.url,
+      url: `https://i.bstu.cn/${v.name}`
+    }));
+  }
   ctx.body = ctx.DATA;
 };
 
@@ -24,9 +65,8 @@ const upload = async (ctx, next) => {
 const build_upload = async (ctx, next) => {
   const {key} = ctx.request.body;
   const file = ctx.request.files.file;
-  console.log(key);
   let stream = fs.createReadStream(file.path);
-  let res = await oss().putStream(key, stream);
+  let res = await oss.putStream(key, stream);
   res.ossUrl = res.url;
   res.url = `https://i.bstu.cn/${res.name}`;
   ctx.DATA.data = res;
@@ -38,8 +78,7 @@ const build_upload = async (ctx, next) => {
  */
 const list = async (ctx, next) => {
   const name = ctx.query.name;
-  console.log(name);
-  ctx.DATA.data = await oss().list({
+  ctx.DATA.data = await oss.list({
     prefix: name,
     delimiter: '/'
   });
@@ -55,7 +94,7 @@ const list = async (ctx, next) => {
  */
 const url = async (ctx) => {
   const name = ctx.query.name;
-  ctx.DATA.data = oss().signatureUrl(name, {expires: 3600});
+  ctx.DATA.data = oss.signatureUrl(name, {expires: 3600});
   ctx.body = ctx.DATA;
 };
 
@@ -68,7 +107,7 @@ const del = async (ctx) => {
   let directory = dat[1];
   try {
     for (let i = 0; i < directory.length; i++) {
-      let retList = await oss().list({
+      let retList = await oss.list({
         prefix: directory[i]
       });
       retList.objects.reverse();
@@ -79,7 +118,7 @@ const del = async (ctx) => {
   } catch (e) {
     throw new CustomError(0, '删除文件:整合失败');
   }
-  let result = await oss().deleteMulti(delList, {quiet: true});
+  let result = await oss.deleteMulti(delList, {quiet: true});
   if (result.res.status !== 200) {
     throw new CustomError(0, '删除失败');
   }
