@@ -73,10 +73,10 @@ local SOURCE="/data/docker/awei/" + NAME+"/source/";
         "name": "docker build && up",
         "image": "appleboy/drone-ssh",
         "settings": {
-          "host": "bstu.cn",
+          "host": "2024.bstu.cn",
           "username": "root",
-          "password": {
-            "from_secret": "ssh_key"
+          "key": {
+            "from_secret": "drone_id_rsa"
           },
           "port": 22,
           "command_timeout": "10m",
