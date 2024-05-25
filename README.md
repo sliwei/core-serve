@@ -1,5 +1,7 @@
 # core-serve
 
+[![deploy](https://github.com/sliwei/core-serve/actions/workflows/action.yaml/badge.svg)](https://github.com/sliwei/core-serve/actions/workflows/action.yaml)
+
 > 基础服务中心
 
 ## Dev Setup
